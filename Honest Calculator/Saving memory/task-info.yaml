@@ -1,0 +1,100 @@
+type: edu
+files:
+- name: honest_calc.py
+  visible: true
+  text: "msg_0 = \"Enter an equation\"\nmsg_1 = \"Do you even know what numbers are?\
+    \ Stay focused!\"\nmsg_2 = \"Yes ... an interesting math operation. You've slept\
+    \ through all classes, haven't you?\"\nmsg_3 = \"Yeah... division by zero. Smart\
+    \ move...\"\nmsg_4 = \"Do you want to store the result? (y / n):\"\nmsg_5 = \"\
+    Do you want to continue calculations? (y / n):\"\nmsg_6 = \" ... lazy\"\nmsg_7\
+    \ = \" ... very lazy\"\nmsg_8 = \" ... very, very lazy\"\nmsg_9 = \"You are\"\n\
+    \ndef is_one_digit(v):\n    return (-10 < v < 10 and v.is_integer())\n\ndef check(v1,\
+    \ v2, v3):\n    msg = ''\n    if is_one_digit(v1) and is_one_digit(v2):\n    \
+    \    msg += msg_6\n    if (v1 == 1 or v2 == 1) and v3 == '*':\n        msg +=\
+    \ msg_7\n    if (v1 == 0 or v2 == 0) and v3 != '/':\n        msg += msg_8\n  \
+    \  if msg != '':\n        msg = msg_9 + msg\n        print(msg)\n\n\nmemory =\
+    \ 0.0\nwhile True:\n    calc = input(msg_0).split()\n    try:\n        x = float(calc[0])\
+    \ if calc[0] != 'M' else memory\n        y = float(calc[2]) if calc[2] != 'M'\
+    \ else memory\n        # check laziness\n        check(x, y, calc[1])\n      \
+    \  #\n        result = {'+' : (lambda x, y: x + y),\n                  '-' : (lambda\
+    \ x, y: x - y),\n                  '*' : (lambda x, y: x * y),\n             \
+    \     '/' : (lambda x, y: x / y)}[calc[1]](x, y)\n        print(result)\n    \
+    \    # memory prompt\n        response = ''\n        while 'y' != response !=\
+    \ 'n':\n            response = input(msg_4+'\\n')\n        if response == 'y':\n\
+    \            memory = result\n        # \n        # exit prompt\n        response\
+    \ = ''\n        while 'y' != response != 'n':\n            response = input(msg_5+'\\\
+    n')\n        if response == 'y':\n            continue\n        # \n        break\n\
+    \    except ValueError:\n        print(msg_1)\n    except KeyError:\n        print(msg_2)\n\
+    \    except ZeroDivisionError:\n        print(msg_3)"
+  learner_created: false
+- name: test/__init__.py
+  visible: false
+  learner_created: false
+- name: test/tests.py
+  visible: false
+  text: |
+    from hstest import StageTest, CheckResult, WrongAnswer, dynamic_test, TestedProgram
+
+    msg = ["Enter an equation",
+           "Do you even know what numbers are? Stay focused!",
+           "Yes ... an interesting math operation. You've slept through all classes, haven't you?",
+           "Yeah... division by zero. Smart move...",
+           "Do you want to store the result? (y / n):",
+           "Do you want to continue calculations? (y / n):",
+           " ... lazy",
+           " ... very lazy",
+           " ... very, very lazy",
+           "You are",
+           "Are you sure? It is only one digit! (y / n)",
+           "Don't be silly! It's just one number! Add to the memory? (y / n)",
+           "Last chance! Do you really want to embarrass yourself? (y / n)"
+    ]
+
+
+    def add_enter(txt):
+        return "\n".join([txt, msg[0]])
+
+
+    def add_memory(txt):
+        return "\n".join([txt, msg[4]])
+
+
+    data = [(("4 * 5.0", "\n".join([msg[9] + msg[6], add_memory("20.0")])), ("n", msg[5]), ("n", "")),
+            (("2 + 5.5", add_memory("7.5")), ("y", msg[5]), ("y", msg[0]), ("M - 9", add_memory("-1.5")), ("n", msg[5]), ("n", "")),
+            (("225 / 15", add_memory("15.0")), ("y", msg[5]), ("y",msg[0]),
+             ("1 * 5", "\n".join([msg[9] + msg[6] + msg[7], add_memory("5.0")])), ("y", msg[10]), ("y", msg[11]), ("n", msg[5]), ("y", msg[0]),
+            ("M - 10", add_memory("5.0")), ("y", msg[10]), ("y", msg[11]), ("y", msg[12]), ("y", msg[5]), ("y", msg[0]),
+             ("M / M",  "\n".join([msg[9] + msg[6], add_memory("1.0")])), ("n", msg[5]), ("n", "")),
+           ]  # (input data, msg sentence])
+
+
+    class HonestCalc(StageTest):
+        @dynamic_test(data=data)
+        def test(self, *items):
+            pr = TestedProgram()
+            output = pr.start()
+            if msg[0] not in output:
+                return CheckResult.wrong(f"Expected: ({msg[0]});\nFound:    ({output.strip()})")
+            for item in items:
+                output = pr.execute(item[0])
+                if item[1] != output.strip():
+                    return CheckResult.wrong(f"Expected:\n{item[1]}\nFound:\n{output.strip()}")
+            if not pr.is_finished():
+                return CheckResult.wrong("Your program unnecessarily waiting for input.")
+            return CheckResult.correct()
+
+
+    if __name__ == '__main__':
+        HonestCalc().run_tests()
+  learner_created: false
+- name: tests.py
+  visible: false
+  text: |
+    from test.tests import HonestCalc
+
+    if __name__ == '__main__':
+        HonestCalc().run_tests()
+  learner_created: false
+feedback_link: https://hyperskill.org/projects/208/stages/1043/implement#comment
+status: Solved
+record: -1
